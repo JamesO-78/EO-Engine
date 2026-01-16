@@ -16,6 +16,7 @@ namespace dx3d
 		private:
 
 			bool m_isRunning{ true };
+			bool m_Poop{ true };
 
 	};
 }
