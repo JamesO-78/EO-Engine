@@ -2,14 +2,35 @@
 #include "Windows.h"
 #include <stdexcept>
 
+static LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+	switch (msg)
+	{
+		case WM_CLOSE:
+		{
+			PostQuitMessage(0);
+			break;
+		}
+		default: 
+			return DefWindowProc(hwnd, msg, wparam, lparam);
+	}
+
+	return 0;
+}
+
 dx3d::Window::Window():Base()
 {
-	WNDCLASSEX wc{};
-	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.lpszClassName = L"EO Engine";
-	wc.lpfnWndProc = DefWindowProc;
+	auto registerWindowClassFunction = []()
+	{
+		WNDCLASSEX wc{};
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.lpszClassName = L"EO Engine";
+		wc.lpfnWndProc = &WindowProcedure;
 
-	auto windowClassID = RegisterClassEx(&wc);
+		return RegisterClassEx(&wc);
+	};
+
+	static const auto windowClassID = std::invoke(registerWindowClassFunction);
 
 	if (!windowClassID)
 		throw std::runtime_error("RegisterClassEx failed to create!");
